@@ -9,12 +9,12 @@ class notaController extends Controller
 {
     public function index()
     {
-        $resultado = [
-            "nota" => "",
+        $data = [
+            "media" => "",
             "status" => ""
         ];
 
-        return view("nota.index")->with('resultado', $resultado);
+        return view("nota.index")->with('data', $data);
     }
     public function store(Request $request)
     {
@@ -27,12 +27,18 @@ class notaController extends Controller
         $nota->aluno = $aluno;
         $nota->nota = $media;
 
+        if($media >= 7){
+            $data["status"] = "Aprovado.";
+        } else {
+            $data["status"] = "Reprovado.";
+        }
+
         $nota->save();
 
-        return redirect()->route('nota.store', $data);
+        return view("nota.index")->with('data', $data);
     }
 
-    public function dispaly(Request $request)
+    public function display(Request $request)
     {
         $displayNota = notaModel::orderBy('id', 'asc')->get();
 
@@ -44,7 +50,11 @@ class notaController extends Controller
         $updateNota = notaModel::findOrFail($id);
 
         $updateNota->aluno = $request->novo_aluno;
-        $updateNota->media = $request->novo_media;
+        $updateNota->nota = $request->novo_media;
+
+        $updateNota->save();
+
+        return redirect('/nota/display');
     }
 
     public function delete(Request $request, $id)
